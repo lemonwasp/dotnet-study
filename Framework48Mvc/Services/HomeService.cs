@@ -9,6 +9,7 @@ namespace Framework48Mvc.Services
     {
         public object GetMessage()
         {
+            // 匿名オブジェクトを返す
             return new
             {
                 message = "Service에서 생성한 데이터",
