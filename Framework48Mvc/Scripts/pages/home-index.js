@@ -34,8 +34,8 @@ createApp({
             // ここでthisはVueインスタンスを指す
             // サーバから貰った値をVueの反応型データに代入する
             // data.message -> this.message -> {{ message }} -> 画面更新
-            this.message = data.message;
-            this.createdAt = data.createdAt;
+            this.message = data.Message;
+            this.createdAt = data.CreatedAt;
         // ネットワークエラーやJSONパーシングエラーが発生すると、
         // 開発者ツールのコンソールにエラーメッセージが表示される
         } catch (error) {
