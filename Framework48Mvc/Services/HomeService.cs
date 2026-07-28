@@ -7,7 +7,7 @@ using System.Web;
 
 namespace Framework48Mvc.Services
 {
-    public class HomeService
+    public class HomeService : IHomeService
     {
         //public object GetMessage()
         //{
