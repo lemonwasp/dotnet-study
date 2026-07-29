@@ -10,10 +10,15 @@ namespace Framework48Mvc.Controllers
         // フィールドが生成された後、他のオブジェクトに変わらないよう制限
         // ただし、readonlyはオブジェクト内部データの変更まで防止するのではない
         // また、privateフィールド前に_を付けるのは、C#のコーディング規約で推奨されている
-        private readonly HomeService _homeService = new HomeService();
+        //private readonly HomeService _homeService = new HomeService();
         // ActionResultは、MVCのアクションメソッドが返す型であり、HTTPレスポンスを表す
         // IndexはHomeControllerのデフォルトアクションメソッドであり、
         // /や/Home/や/Home/Indexにアクセスした際に呼び出される
+        private readonly IHomeService _homeService;
+        public HomeController(IHomeService homeService)
+        {
+            _homeService = homeService;
+        }
         public ActionResult Index()
         {
             // ControllerとActionの名前を組み合わせたViewを返すことで、
