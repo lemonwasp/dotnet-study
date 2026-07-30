@@ -139,6 +139,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\HomeRepository.cs" />
+    <Compile Include="Repositories\IHomeRepository.cs" />
     <Compile Include="Services\HomeService.cs" />
     <Compile Include="Services\IHomeService.cs" />
   </ItemGroup>
