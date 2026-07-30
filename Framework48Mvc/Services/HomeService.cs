@@ -1,4 +1,5 @@
 ﻿using Framework48Mvc.Dtos;
+using Framework48Mvc.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +19,16 @@ namespace Framework48Mvc.Services
         //        createdAt = DateTime.Now
         //    };
         //}
+        private readonly IHomeRepository _homeRepository;
+
+        public HomeService(IHomeRepository homeRepository)
+        {
+            _homeRepository = homeRepository;
+        }
+
         public MessageResponse GetMessage()
         {
-            return new MessageResponse
-            {
-                Message = "Service에서 생성한 데이터",
-                CreatedAt = DateTime.Now
-            };
+            return _homeRepository.GetMessage();
         }
     }
 }
