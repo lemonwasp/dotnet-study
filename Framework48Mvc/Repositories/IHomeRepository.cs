@@ -8,6 +8,6 @@ namespace Framework48Mvc.Repositories
 {
     public interface IHomeRepository
     {
-        MessageResponse GetMessage();
+        List<MessageResponse> GetMessages();
     }
 }

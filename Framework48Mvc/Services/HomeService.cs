@@ -26,9 +26,9 @@ namespace Framework48Mvc.Services
             _homeRepository = homeRepository;
         }
 
-        public MessageResponse GetMessage()
+        public List<MessageResponse> GetMessages()
         {
-            return _homeRepository.GetMessage();
+            return _homeRepository.GetMessages();
         }
     }
 }

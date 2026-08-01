@@ -8,13 +8,34 @@ namespace Framework48Mvc.Repositories
 {
     public class HomeRepository : IHomeRepository
     {
-        public MessageResponse GetMessage()
+        private readonly List<MessageResponse> _messages;
+        public HomeRepository()
         {
-            return new MessageResponse
+            _messages = new List<MessageResponse>
             {
-                Message = "data from repository",
-                CreatedAt = DateTime.Now
+                new MessageResponse
+                {
+                    Id = 1,
+                    Message = "The first message from the repository",
+                    CreatedAt = DateTime.Now
+                },
+                new MessageResponse
+                {
+                    Id = 2,
+                    Message = "The second message from the repository",
+                    CreatedAt = DateTime.Now
+                },
+                new MessageResponse
+                {
+                    Id = 3,
+                    Message = "The third message from the repository",
+                    CreatedAt = DateTime.Now
+                }
             };
+        }
+        public List<MessageResponse> GetMessages()
+        {
+            return _messages;
         }
     }
 }
