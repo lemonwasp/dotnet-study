@@ -8,6 +8,6 @@ namespace Framework48Mvc.Services
 {
     public interface IHomeService
     {
-        MessageResponse GetMessage();
+        List<MessageResponse> GetMessages();
     }
 }
