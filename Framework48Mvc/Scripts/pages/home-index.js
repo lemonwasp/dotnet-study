@@ -8,8 +8,8 @@ createApp({
     data() {
         return {
             // 初期値を設定する
-                  // 後にthis.message = data.message;が実行されると、
-                  // Vueが変更を感知して画面を更新する
+            // 後にthis.message = data.message;が実行されると、
+            // Vueが変更を感知して画面を更新する
             messages: [],
             newMessage: '',
             editingId: null,
@@ -25,31 +25,31 @@ createApp({
     async mounted() {
         await this.loadMessages();
     },
-        
+
     methods: {
         async loadMessages() {
             try {
-                        // ブラウザがサーバにHTTPリクエストを送る
+                // ブラウザがサーバにHTTPリクエストを送る
                 // デフォルトではGETメソッドで送信される
-                        // awaitはレスポンスが来るまで処理を一時停止する
-                        // しかし、ブラウザ全体が止まるわけではなく、他の処理は継続される
-                        // fetch()が返すのはJSONデータではなく、HTTPレスポンスオブジェクト
+                // awaitはレスポンスが来るまで処理を一時停止する
+                // しかし、ブラウザ全体が止まるわけではなく、他の処理は継続される
+                // fetch()が返すのはJSONデータではなく、HTTPレスポンスオブジェクト
                 const response = await fetch('/Home/GetMessages');
 
                 if (!response.ok) {
                     throw new Error(`HTTP error: ${response.status}`);
                 }
                 // デシリアライズ
-                        // レスポンス本文にあるJSON文字列をJavaScriptオブジェクトに変換する
+                // レスポンス本文にあるJSON文字列をJavaScriptオブジェクトに変換する
                 const data = await response.json();
                 // ここでthisはVueインスタンスを指す
-                        // サーバから貰った値をVueの反応型データに代入する
-                        // data.message -> this.message -> {{ message }} -> 画面更新
+                // サーバから貰った値をVueの反応型データに代入する
+                // data.message -> this.message -> {{ message }} -> 画面更新
                 // this.message = data.Message;
                 // this.createdAt = data.CreatedAt;
                 this.messages = data;
-                        // ネットワークエラーやJSONパーシングエラーが発生すると、
-                        // 開発者ツールのコンソールにエラーメッセージが表示される
+                // ネットワークエラーやJSONパーシングエラーが発生すると、
+                // 開発者ツールのコンソールにエラーメッセージが表示される
             } catch (error) {
                 console.error('Error fetching message:', error);
             }
@@ -121,7 +121,34 @@ createApp({
                 this.cancelEdit();
                 await this.loadMessages();
             } catch (error) {
-                console.error('Error updating message:', error); 
+                console.error('Error updating message:', error);
+            }
+        },
+
+        async deleteMessage(id) {
+            try {
+                const response = await fetch('/Home/DeleteMessage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                });
+
+                if (!confirm("Delete this message?")) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Http error: ${response.status}`);
+                }
+
+                await this.loadMessages();
+            }
+            catch (error) {
+                console.error(error);
             }
         },
 

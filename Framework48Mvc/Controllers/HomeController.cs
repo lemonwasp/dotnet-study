@@ -73,6 +73,17 @@ namespace Framework48Mvc.Controllers
             });
         }
 
+        [HttpPost]
+        public JsonResult DeleteMessage(int id)
+        {
+            _homeService.DeleteMessage(id);
+
+            return Json(new
+            {
+                success = true
+            });
+        }
+
         public ActionResult About()
         {
             // ViewBagは、ControllerとView間でデータを渡すための動的プロパティ

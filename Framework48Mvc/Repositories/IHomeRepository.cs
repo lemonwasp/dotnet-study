@@ -13,5 +13,7 @@ namespace Framework48Mvc.Repositories
         void AddMessage(CreateMessageRequest request);
 
         void UpdateMessage(UpdateMessageRequest request);
+
+        void DeleteMessage(int id);
     }
 }

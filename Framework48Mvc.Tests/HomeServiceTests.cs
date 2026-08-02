@@ -3,6 +3,7 @@ using Framework48Mvc.Services;
 using Framework48Mvc.Tests.Fakes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 
 namespace Framework48Mvc.Tests
 {
@@ -20,22 +21,24 @@ namespace Framework48Mvc.Tests
             //{
             //    Message = "Unit Test"
             //};
-            var request = new UpdateMessageRequest
-            {
-                Id = 1,
-                Message = "Updated message"
-            };
+            //var request = new UpdateMessageRequest
+            //{
+            //    Id = 1,
+            //    Message = "Updated message"
+            //};
 
             // Act
             //service.AddMessage(request);
-            service.UpdateMessage(request);
+            //service.UpdateMessage(request);
+            service.DeleteMessage(1);
 
             // Assert
             var messages = service.GetMessages();
 
             //Assert.AreEqual(3, messages.Count);
             //Assert.AreEqual("Unit Test", messages[2].Message);
-            Assert.AreEqual("Updated message", messages[0].Message);
+            //Assert.AreEqual("Updated message", messages[0].Message);
+            Assert.IsFalse(messages.Any(m => m.Id == 1));
         }
     }
 }
