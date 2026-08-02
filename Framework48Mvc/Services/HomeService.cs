@@ -15,7 +15,7 @@ namespace Framework48Mvc.Services
         //    // 匿名オブジェクトを返す
         //    return new
         //    {
-        //        message = "Service에서 생성한 데이터",
+            //        message = "Service에서 생성한 데이터",
         //        createdAt = DateTime.Now
         //    };
         //}
@@ -29,6 +29,11 @@ namespace Framework48Mvc.Services
         public List<MessageResponse> GetMessages()
         {
             return _homeRepository.GetMessages();
+        }
+
+        public void AddMessage(CreateMessageRequest request)
+        {
+            _homeRepository.AddMessage(request);
         }
     }
 }

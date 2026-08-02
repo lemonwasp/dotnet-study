@@ -1,4 +1,5 @@
-﻿using Framework48Mvc.Services;
+﻿using Framework48Mvc.Dtos;
+using Framework48Mvc.Services;
 using Framework48Mvc.Tests.Fakes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -15,13 +16,20 @@ namespace Framework48Mvc.Tests
             var repository = new FakeHomeRepository();
             var service = new HomeService(repository);
 
+            var request = new CreateMessageRequest
+            {
+                Message = "Unit Test"
+            };
+
             // Act
-            var result = service.GetMessages();
+            service.AddMessage(request);
 
             // Assert
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("Fake message 1", result[0].Message);
-            Assert.AreEqual(1, result[0].Id);
+            var messages = service.GetMessages();
+
+            Assert.AreEqual(3, messages.Count);
+            Assert.AreEqual("Unit Test", messages[2].Message);
         }
     }
 }
+    

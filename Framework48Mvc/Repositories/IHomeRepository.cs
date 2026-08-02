@@ -9,5 +9,7 @@ namespace Framework48Mvc.Repositories
     public interface IHomeRepository
     {
         List<MessageResponse> GetMessages();
+
+        void AddMessage(CreateMessageRequest request);
     }
 }

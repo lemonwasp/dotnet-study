@@ -12,6 +12,18 @@
     Vueデータ変更→Vueが変更感知→DOM更新*@
     <h2>Messages</h2>
 
+    <div>
+        <input
+            v-model="newMessage"
+            type="text"
+            placeholder="Enter a message"
+        /> 
+        
+        <button type="button" v-on:click="addMessage">
+            Add
+        </button>
+    </div>
+
     <p v-if="messages.length === 0">
         loading...
     </p>

@@ -3,6 +3,7 @@ using Unity;
 using Unity.Mvc5;
 using Framework48Mvc.Services;
 using Framework48Mvc.Repositories;
+using Unity.Lifetime;
 
 namespace Framework48Mvc
 {
@@ -20,7 +21,9 @@ namespace Framework48Mvc
         public static void RegisterTypes(IUnityContainer container)
         {
             container.RegisterType<IHomeService, HomeService>();
-            container.RegisterType<IHomeRepository, HomeRepository>();
+            container.RegisterType<IHomeRepository, HomeRepository>(
+                new ContainerControlledLifetimeManager()
+            );
         }
     }
 }

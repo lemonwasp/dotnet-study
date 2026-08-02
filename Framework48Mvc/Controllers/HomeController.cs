@@ -1,4 +1,6 @@
-﻿using Framework48Mvc.Services;
+﻿using Framework48Mvc.Dtos;
+using Framework48Mvc.Services;
+using System.Web.Management;
 using System.Web.Mvc;
 
 namespace Framework48Mvc.Controllers
@@ -7,9 +9,9 @@ namespace Framework48Mvc.Controllers
     // MVCのコントローラーとして機能する
     public class HomeController : Controller
     {
-        // フィールドが生成された後、他のオブジェクトに変わらないよう制限
-        // ただし、readonlyはオブジェクト内部データの変更まで防止するのではない
-        // また、privateフィールド前に_を付けるのは、C#のコーディング規約で推奨されている
+            // フィールドが生成された後、他のオブジェクトに変わらないよう制限
+            // ただし、readonlyはオブジェクト内部データの変更まで防止するのではない
+            // また、privateフィールド前に_を付けるのは、C#のコーディング規約で推奨されている
         //private readonly HomeService _homeService = new HomeService();
         // ActionResultは、MVCのアクションメソッドが返す型であり、HTTPレスポンスを表す
         // IndexはHomeControllerのデフォルトアクションメソッドであり、
@@ -22,16 +24,16 @@ namespace Framework48Mvc.Controllers
         public ActionResult Index()
         {
             // ControllerとActionの名前を組み合わせたViewを返すことで、
-            // MVCのビューエンジンが自動的に対応するビューを探してレンダリングする
+                  // MVCのビューエンジンが自動的に対応するビューを探してレンダリングする
             // Views/Home/Index.cshtml
             return View();
         }
 
-        // このメソッドは、HTTP GETリクエストだけを受け付けることを示す属性であり、
+            // このメソッドは、HTTP GETリクエストだけを受け付けることを示す属性であり、
         // ブラウザからのアクセスやAjaxリクエストなどで呼び出される
         [HttpGet]
         // ActionResultの派生クラスであるJsonResultを返すことで、
-        // JSON形式のデータを返すことができる
+            // JSON形式のデータを返すことができる
         public JsonResult GetMessages()
         {
             // varは右の値を推論して型を決定するキーワードであり、
@@ -49,10 +51,21 @@ namespace Framework48Mvc.Controllers
             );
         }
 
+        [HttpPost]
+        public ActionResult AddMessage(CreateMessageRequest request)
+        {
+            _homeService.AddMessage(request);
+
+            return Json(new
+            {
+                success = true
+            });
+        }
+
         public ActionResult About()
         {
             // ViewBagは、ControllerとView間でデータを渡すための動的プロパティ
-            // ただし、コンパイル時に型チェックが行われないため、
+        // ただし、コンパイル時に型チェックが行われないため、
             // 型安全性が低いので、規模が大きくなる場合はViewModelを使用することが推奨される
             ViewBag.Message = "Your application description page.";
 

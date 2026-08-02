@@ -1,15 +1,15 @@
-﻿using Framework48Mvc.Repositories;
+﻿using Framework48Mvc.Dtos;
+using Framework48Mvc.Repositories;
 using System;
 using System.Collections.Generic;
-using Framework48Mvc.Dtos;
+using System.Runtime.Remoting.Messaging;
 
 namespace Framework48Mvc.Tests.Fakes
 {
     public class FakeHomeRepository : IHomeRepository
     {
-      public List<MessageResponse> GetMessages()
-        {
-            return new List<MessageResponse>
+        private readonly List<MessageResponse> _messages = 
+            new List<MessageResponse>
             {
                 new MessageResponse
                 {
@@ -24,6 +24,21 @@ namespace Framework48Mvc.Tests.Fakes
                     CreatedAt = new DateTime(2026, 8, 3)
                 }
             };
+ 
+        
+        public List<MessageResponse> GetMessages()
+        {
+            return _messages;
+        }
+
+        public void AddMessage(CreateMessageRequest request)
+        {
+            _messages.Add(new MessageResponse
+            {
+                Id = _messages.Count + 1,
+                Message = request.Message,
+                CreatedAt = new DateTime(2026, 8, 4)
+            });
         }
     }
 }
