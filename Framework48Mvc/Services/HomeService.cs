@@ -36,5 +36,10 @@ namespace Framework48Mvc.Services
         {
             _homeRepository.UpdateMessage(request);
         }
+
+        public void DeleteMessage(int id)
+        {
+            _homeRepository.DeleteMessage(id);
+        }
     }
 }

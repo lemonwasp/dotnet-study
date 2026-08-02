@@ -58,5 +58,15 @@ namespace Framework48Mvc.Repositories
                 message.Message = request.Message;
             }
         }
+
+        public void DeleteMessage(int id)
+        {
+            var message = _messages.FirstOrDefault(m => m.Id == id);
+
+            if (message != null)
+            {
+                _messages.Remove(message);
+            }
+        }
     }
 }

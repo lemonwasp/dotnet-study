@@ -50,6 +50,9 @@
                 <button type="button" v-on:click="startEdit(message)">
                     Edit
                 </button>
+                <button type="button" v-on:click="deleteMessage(message.Id)">
+                    Delete
+                </button>
 
                 <br />
                 <small>{{ formatDate(message.CreatedAt) }}</small>
