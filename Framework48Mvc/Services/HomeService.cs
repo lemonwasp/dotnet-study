@@ -1,10 +1,6 @@
 ﻿using Framework48Mvc.Dtos;
 using Framework48Mvc.Repositories;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Web;
 
 namespace Framework48Mvc.Services
 {
@@ -15,7 +11,7 @@ namespace Framework48Mvc.Services
         //    // 匿名オブジェクトを返す
         //    return new
         //    {
-            //        message = "Service에서 생성한 데이터",
+        //        message = "Service에서 생성한 데이터",
         //        createdAt = DateTime.Now
         //    };
         //}
@@ -34,6 +30,11 @@ namespace Framework48Mvc.Services
         public void AddMessage(CreateMessageRequest request)
         {
             _homeRepository.AddMessage(request);
+        }
+
+        public void UpdateMessage(UpdateMessageRequest request)
+        {
+            _homeRepository.UpdateMessage(request);
         }
     }
 }

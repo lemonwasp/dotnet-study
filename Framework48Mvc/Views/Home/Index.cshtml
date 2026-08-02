@@ -30,10 +30,30 @@
 
     <ul v-else>
         <li v-for="message in messages" :key="message.Id">
-            <strong>#{{ message.Id }}</strong> 
-            <span>{{ message.Message }}</span>
-            <br />
-            <small>{{ formatDate(message.CreatedAt) }}</small>
+            <template v-if="message.Id === editingId">
+                <input v-model="editingMessage" type="text"/>
+
+                <button type="button" v-on:click="updateMessage">
+                    Save
+                </button>
+
+                <button type="button" v-on:click="cancelEdit">
+                    Cancel
+                </button>
+            </template>
+
+            <template v-else>
+                <strong>#{{ message.Id }}</strong>
+                &nbsp;
+                <span>{{ message.Message }}</span>
+                &nbsp;
+                <button type="button" v-on:click="startEdit(message)">
+                    Edit
+                </button>
+
+                <br />
+                <small>{{ formatDate(message.CreatedAt) }}</small>
+            </template>
         </li>
     </ul>
 

@@ -11,5 +11,7 @@ namespace Framework48Mvc.Services
         List<MessageResponse> GetMessages();
 
         void AddMessage(CreateMessageRequest request);
+
+        void UpdateMessage(UpdateMessageRequest request);
     }
 }

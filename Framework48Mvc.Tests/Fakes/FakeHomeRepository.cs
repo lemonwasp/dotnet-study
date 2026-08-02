@@ -2,6 +2,7 @@
 using Framework48Mvc.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
 
 namespace Framework48Mvc.Tests.Fakes
@@ -39,6 +40,16 @@ namespace Framework48Mvc.Tests.Fakes
                 Message = request.Message,
                 CreatedAt = new DateTime(2026, 8, 4)
             });
+        }
+
+        public void UpdateMessage(UpdateMessageRequest request)
+        {
+            var message = _messages.FirstOrDefault(m => m.Id == request.Id);
+
+            if (message != null)
+            {
+                message.Message = request.Message;
+            }
         }
     }
 }

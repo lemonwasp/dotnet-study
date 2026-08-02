@@ -49,5 +49,14 @@ namespace Framework48Mvc.Repositories
 
             _messages.Add(newMessage);
         }
+
+        public void UpdateMessage(UpdateMessageRequest request)
+        {
+            var message = _messages.FirstOrDefault(m => m.Id == request.Id);
+            if (message != null)
+            {
+                message.Message = request.Message;
+            }
+        }
     }
 }
