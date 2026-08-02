@@ -37,5 +37,17 @@ namespace Framework48Mvc.Repositories
         {
             return _messages;
         }
+
+        public void AddMessage(CreateMessageRequest request)
+        {
+            var newMessage = new MessageResponse
+            {
+                Id = _messages.Count + 1,
+                Message = request.Message,
+                CreatedAt = DateTime.Now
+            };
+
+            _messages.Add(newMessage);
+        }
     }
 }

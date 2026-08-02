@@ -9,5 +9,7 @@ namespace Framework48Mvc.Services
     public interface IHomeService
     {
         List<MessageResponse> GetMessages();
+
+        void AddMessage(CreateMessageRequest request);
     }
 }
