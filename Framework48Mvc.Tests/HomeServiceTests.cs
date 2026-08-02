@@ -16,19 +16,26 @@ namespace Framework48Mvc.Tests
             var repository = new FakeHomeRepository();
             var service = new HomeService(repository);
 
-            var request = new CreateMessageRequest
+            //var request = new CreateMessageRequest
+            //{
+            //    Message = "Unit Test"
+            //};
+            var request = new UpdateMessageRequest
             {
-                Message = "Unit Test"
+                Id = 1,
+                Message = "Updated message"
             };
 
             // Act
-            service.AddMessage(request);
+            //service.AddMessage(request);
+            service.UpdateMessage(request);
 
             // Assert
             var messages = service.GetMessages();
 
-            Assert.AreEqual(3, messages.Count);
-            Assert.AreEqual("Unit Test", messages[2].Message);
+            //Assert.AreEqual(3, messages.Count);
+            //Assert.AreEqual("Unit Test", messages[2].Message);
+            Assert.AreEqual("Updated message", messages[0].Message);
         }
     }
 }

@@ -11,7 +11,9 @@ createApp({
                   // 後にthis.message = data.message;が実行されると、
                   // Vueが変更を感知して画面を更新する
             messages: [],
-            newMessage: ''
+            newMessage: '',
+            editingId: null,
+            editingMessage: ''
         };
     },
 
@@ -80,6 +82,46 @@ createApp({
                 await this.loadMessages();
             } catch (error) {
                 console.error('Error adding message:', error);
+            }
+        },
+
+        startEdit(message) {
+            this.editingId = message.Id;
+            this.edtingMessage = message.Message;
+        },
+
+        cancelEdit() {
+            this.editingId = null;
+            this.editingMessage = '';
+        },
+
+        async updateMessage() {
+            const message = this.editingMessage.trim();
+
+            if (!message) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Home/UpdateMessage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Id: this.editingId,
+                        Message: message
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+
+                this.cancelEdit();
+                await this.loadMessages();
+            } catch (error) {
+                console.error('Error updating message:', error); 
             }
         },
 
