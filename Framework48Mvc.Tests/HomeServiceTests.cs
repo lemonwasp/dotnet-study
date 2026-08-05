@@ -11,7 +11,7 @@ namespace Framework48Mvc.Tests
     public class HomeServiceTests
     {
         [TestMethod]
-        public void GetMessages_ReturnsTwoMessages()
+        public void AddMessage_ThrowsArgumentException_WhenMessageIsEmpty()
         {
             // Arrange
             var repository = new FakeHomeRepository();
@@ -26,19 +26,50 @@ namespace Framework48Mvc.Tests
             //    Id = 1,
             //    Message = "Updated message"
             //};
+            var request = new CreateMessageRequest
+            {
+                Message = ""
+            };
 
             // Act
             //service.AddMessage(request);
             //service.UpdateMessage(request);
-            service.DeleteMessage(1);
+            //service.DeleteMessage(1);
 
             // Assert
-            var messages = service.GetMessages();
+            //var messages = service.GetMessages();
 
             //Assert.AreEqual(3, messages.Count);
             //Assert.AreEqual("Unit Test", messages[2].Message);
             //Assert.AreEqual("Updated message", messages[0].Message);
-            Assert.IsFalse(messages.Any(m => m.Id == 1));
+            //Assert.IsFalse(messages.Any(m => m.Id == 1));
+            Assert.ThrowsException<ArgumentException>(() => service.AddMessage(request));    
+        }
+
+        [TestMethod]
+        public void UpdateMessage_ThrowsArgumentException_WhenIdIsInvalid()
+        {
+            var repository = new FakeHomeRepository();
+            var service = new HomeService(repository);
+
+            var request = new UpdateMessageRequest
+            {
+                Id = 0,
+                Message = "Updated message"
+            };
+
+            Assert.ThrowsException<ArgumentException>(
+                () => service.UpdateMessage(request));
+        }
+
+        [TestMethod]
+        public void DeleteMessage_ThrowsArgumentException_WhenIdIsInvalid()
+        {
+            var repository = new FakeHomeRepository();
+            var service = new HomeService(repository);
+
+            Assert.ThrowsException<ArgumentException>(
+                () => service.DeleteMessage(0));
         }
     }
 }

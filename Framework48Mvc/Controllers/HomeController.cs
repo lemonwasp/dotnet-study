@@ -1,5 +1,6 @@
 ﻿using Framework48Mvc.Dtos;
 using Framework48Mvc.Services;
+using System;
 using System.Web.Management;
 using System.Web.Mvc;
 
@@ -54,34 +55,67 @@ namespace Framework48Mvc.Controllers
         [HttpPost]
         public ActionResult AddMessage(CreateMessageRequest request)
         {
-            _homeService.AddMessage(request);
-
-            return Json(new
+            try
             {
-                success = true
-            });
+                _homeService.AddMessage(request);
+
+                return Json(new
+                {
+                    success = true
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpPost]
         public JsonResult UpdateMessage(UpdateMessageRequest request)
         {
-            _homeService.UpdateMessage(request);
-
-            return Json(new
+            try
             {
-                success = true
-            });
+                _homeService.UpdateMessage(request);
+
+                return Json(new
+                {
+                    success = true
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpPost]
         public JsonResult DeleteMessage(int id)
         {
-            _homeService.DeleteMessage(id);
-
-            return Json(new
+            try
             {
-                success = true
-            });
+                _homeService.DeleteMessage(id);
+
+                return Json(new
+                {
+                    success = true
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         public ActionResult About()

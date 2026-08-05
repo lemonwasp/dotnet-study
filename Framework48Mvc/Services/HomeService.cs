@@ -2,6 +2,7 @@
 using Framework48Mvc.Repositories;
 using System.Collections.Generic;
 using log4net;
+using System;
 
 namespace Framework48Mvc.Services
 {
@@ -30,18 +31,58 @@ namespace Framework48Mvc.Services
 
         public void AddMessage(CreateMessageRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Message))
+            {
+                throw new ArgumentException(
+                    "Message must not be empty.",
+                    nameof(request.Message));
+            }
+
             _homeRepository.AddMessage(request);
             _logger.Info($"Message created.");
         }
     
         public void UpdateMessage(UpdateMessageRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+            
+            if (request.Id <= 0)
+            {
+                throw new ArgumentException(
+                    "Id must be greater than zero.",
+                    nameof(request.Id));
+
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                request.Message))
+            {
+                throw new ArgumentException(
+                    "Message must not be empty.",
+                    nameof(request.Message));
+            }
+
             _homeRepository.UpdateMessage(request);
             _logger.Info($"Message updated. Id={request.Id}");
         }
 
         public void DeleteMessage(int id)
         {
+            if (id <= 0)
+            {
+                throw new ArgumentException(
+                    "Id must be greater than zero.",
+                    nameof(id));
+            }
+
             _homeRepository.DeleteMessage(id);
             _logger.Info($"Message deleted. Id={id}");
         }
