@@ -4,6 +4,7 @@ using Unity.Mvc5;
 using Framework48Mvc.Services;
 using Framework48Mvc.Repositories;
 using Unity.Lifetime;
+using Framework48Mvc.Data;
 
 namespace Framework48Mvc
 {
@@ -21,9 +22,11 @@ namespace Framework48Mvc
         public static void RegisterTypes(IUnityContainer container)
         {
             container.RegisterType<IHomeService, HomeService>();
-            container.RegisterType<IHomeRepository, HomeRepository>(
-                new ContainerControlledLifetimeManager()
-            );
+            //container.RegisterType<IHomeRepository, HomeRepository>(
+            //    new ContainerControlledLifetimeManager()
+            //);
+            container.RegisterType<ApplicationDbContext>();
+            container.RegisterType<IHomeRepository, EntityFrameworkHomeRepository>();
         }
     }
 }
