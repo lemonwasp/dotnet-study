@@ -43,7 +43,7 @@ namespace Framework48Mvc.Tests
             //Assert.AreEqual("Unit Test", messages[2].Message);
             //Assert.AreEqual("Updated message", messages[0].Message);
             //Assert.IsFalse(messages.Any(m => m.Id == 1));
-            Assert.ThrowsException<ArgumentException>(() => service.AddMessage(request));    
+            Assert.ThrowsExactly<ArgumentException>(() => service.AddMessage(request));    
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace Framework48Mvc.Tests
                 Message = "Updated message"
             };
 
-            Assert.ThrowsException<ArgumentException>(
+            Assert.ThrowsExactly<ArgumentException>(
                 () => service.UpdateMessage(request));
         }
 
@@ -68,7 +68,7 @@ namespace Framework48Mvc.Tests
             var repository = new FakeHomeRepository();
             var service = new HomeService(repository);
 
-            Assert.ThrowsException<ArgumentException>(
+            Assert.ThrowsExactly<ArgumentException>(
                 () => service.DeleteMessage(0));
         }
     }
