@@ -1,5 +1,7 @@
-﻿using System.Web;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Web;
 using System.Web.Mvc;
+using Framework48Mvc.Filters;
 
 namespace Framework48Mvc
 {
@@ -7,7 +9,7 @@ namespace Framework48Mvc
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
+            filters.Add(new GlobalExceptionFilter());
         }
     }
 }

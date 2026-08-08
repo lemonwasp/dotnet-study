@@ -209,6 +209,7 @@
     <Compile Include="Dtos\CreateMessageRequest.cs" />
     <Compile Include="Dtos\MessageResponse.cs" />
     <Compile Include="Dtos\UpdateMessageRequest.cs" />
+    <Compile Include="Filters\GlobalExceptionFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
