@@ -55,67 +55,85 @@ namespace Framework48Mvc.Controllers
         [HttpPost]
         public ActionResult AddMessage(CreateMessageRequest request)
         {
-            try
-            {
-                _homeService.AddMessage(request);
+            //try
+            //{
+            //    _homeService.AddMessage(request);
 
-                return Json(new
-                {
-                    success = true
-                });
-            }
-            catch (ArgumentException ex)
+            //    return Json(new
+            //    {
+            //        success = true
+            //    });
+            //}
+            //catch (ArgumentException ex)
+            //{
+            //    return Json(new
+            //    {
+            //        success = false,
+            //        message = ex.Message
+            //    });
+            //}
+            _homeService.AddMessage(request);
+
+            return Json(new
             {
-                return Json(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
+                success = true
+            });
         }
 
         [HttpPost]
         public JsonResult UpdateMessage(UpdateMessageRequest request)
         {
-            try
-            {
-                _homeService.UpdateMessage(request);
+            //try
+            //{
+            //    _homeService.UpdateMessage(request);
 
-                return Json(new
-                {
-                    success = true
-                });
-            }
-            catch (ArgumentException ex)
+            //    return Json(new
+            //    {
+            //        success = true
+            //    });
+            //}
+            //catch (ArgumentException ex)
+            //{
+            //    return Json(new
+            //    {
+            //        success = false,
+            //        message = ex.Message
+            //    });
+            //}
+            _homeService.UpdateMessage(request);
+
+            return Json(new
             {
-                return Json(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
+                success = true
+            });
         }
 
         [HttpPost]
         public JsonResult DeleteMessage(int id)
         {
-            try
-            {
-                _homeService.DeleteMessage(id);
+            //try
+            //{
+            //    _homeService.DeleteMessage(id);
 
-                return Json(new
-                {
-                    success = true
-                });
-            }
-            catch (ArgumentException ex)
+            //    return Json(new
+            //    {
+            //        success = true
+            //    });
+            //}
+            //catch (ArgumentException ex)
+            //{
+            //    return Json(new
+            //    {
+            //        success = false,
+            //        message = ex.Message
+            //    });
+            //}
+            _homeService.DeleteMessage(id);
+
+            return Json(new
             {
-                return Json(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
+                success = true
+            });
         }
 
         public ActionResult About()

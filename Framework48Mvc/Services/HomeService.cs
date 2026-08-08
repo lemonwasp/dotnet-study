@@ -46,7 +46,7 @@ namespace Framework48Mvc.Services
             _homeRepository.AddMessage(request);
             _logger.Info($"Message created.");
         }
-    
+
         public void UpdateMessage(UpdateMessageRequest request)
         {
             if (request == null)

@@ -42,11 +42,11 @@ namespace Framework48Mvc.Repositories
 
         public void UpdateMessage(UpdateMessageRequest request)
         {
-            var entity = _context.Messages.Find();
+            var entity = _context.Messages.Find(request.Id);
 
             if (entity == null)
             {
-                return;
+                throw new KeyNotFoundException($"Message not found. Id={request.Id}");
             }
 
             entity.MessageText = request.Message;
@@ -58,7 +58,7 @@ namespace Framework48Mvc.Repositories
             var entity = _context.Messages.Find(id);
             if (entity == null)
             {
-                return;
+                throw new KeyNotFoundException($"Message not found. Id={id}");
             }
             _context.Messages.Remove(entity);
             _context.SaveChanges();
