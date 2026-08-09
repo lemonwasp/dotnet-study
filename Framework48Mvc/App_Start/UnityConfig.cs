@@ -5,6 +5,9 @@ using Framework48Mvc.Services;
 using Framework48Mvc.Repositories;
 using Unity.Lifetime;
 using Framework48Mvc.Data;
+using AutoMapper;
+using Framework48Mvc.Mappings;
+using Microsoft.Extensions.Logging;
 
 namespace Framework48Mvc
 {
@@ -21,12 +24,26 @@ namespace Framework48Mvc
         }
         public static void RegisterTypes(IUnityContainer container)
         {
-            container.RegisterType<IHomeService, HomeService>();
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+            });
+
+            var mapperConfig = new MapperConfiguration(
+                cfg =>
+                {
+                    cfg.AddProfile<MessageProfile>();
+                },
+                loggerFactory);
+
+            var mapper = mapperConfig.CreateMapper();
+
+            container.RegisterInstance<IMapper>(mapper);
             //container.RegisterType<IHomeRepository, HomeRepository>(
             //    new ContainerControlledLifetimeManager()
             //);
             container.RegisterType<ApplicationDbContext>();
             container.RegisterType<IHomeRepository, EntityFrameworkHomeRepository>();
+            container.RegisterType<IHomeService, HomeService>();
         }
     }
 }
