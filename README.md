@@ -1,21 +1,38 @@
 # 🚀 Dotnet Backend Study
 
-> From a simple ASP.NET MVC CRUD application  
-> to a structured backend architecture.
+> Evolving a simple ASP.NET MVC CRUD application into a structured and maintainable backend system.
 
+![C#](https://img.shields.io/badge/C%23-.NET_Framework-512BD4)
 ![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
 ![ASP.NET MVC](https://img.shields.io/badge/ASP.NET-MVC_5-512BD4)
 ![Entity Framework](https://img.shields.io/badge/Entity_Framework-6-68217A)
-![Vue.js](https://img.shields.io/badge/Vue.js-3-4FC08D)
 ![SQL Server](https://img.shields.io/badge/SQL_Server-LocalDB-CC2927)
-![AutoMapper](https://img.shields.io/badge/AutoMapper-16.2.0-orange)
+![Vue.js](https://img.shields.io/badge/Vue.js-3-4FC08D)
 ![Testing](https://img.shields.io/badge/Testing-MSTest-success)
 
-A backend engineering portfolio project built with **C#**, **ASP.NET MVC 5**, and **.NET Framework 4.8**.
+A backend engineering study project built with **C#**, **ASP.NET MVC 5**, and **.NET Framework 4.8**.
 
-This project started as a basic CRUD application and is being incrementally improved with patterns and technologies commonly used in real-world backend systems.
+The project started as a simple CRUD application and is being incrementally refactored to explore backend architecture, database persistence, dependency management, error handling, testing, and maintainability.
 
-The main goal is not only to implement features, but to practice how backend applications are **structured, refactored, tested, debugged, and evolved over time**.
+Rather than rebuilding the application for every new concept, each improvement is introduced into the existing system so that its architectural impact can be understood in practice.
+
+---
+
+## 🖥️ Demo
+
+> Current application: persistent Message CRUD with Vue.js and ASP.NET MVC.
+
+<!-- Add application screenshot here
+
+<p align="center">
+  <img src="docs/images/message-crud.png"
+       width="800"
+       alt="Message CRUD application">
+</p>
+
+-->
+
+The frontend communicates with ASP.NET MVC through the Fetch API, while message data is persisted through Entity Framework 6 and SQL Server LocalDB.
 
 ---
 
@@ -41,23 +58,45 @@ The main goal is not only to implement features, but to practice how backend app
 
 ```mermaid
 flowchart TD
-    A[Vue.js] -->|Fetch / JSON| B[HomeController]
-    B --> C[HomeService]
-    C --> D[IHomeRepository]
-    D --> E[EntityFrameworkHomeRepository]
-    E --> F[AutoMapper]
-    E --> G[Entity Framework 6]
-    G --> H[(SQL Server LocalDB)]
+    Client["Vue.js / Razor"]
+    Controller["HomeController"]
+    Service["HomeService"]
+    Interface["IHomeRepository"]
+    Repository["EntityFrameworkHomeRepository"]
+    EF["Entity Framework 6"]
+    DB[("SQL Server LocalDB")]
 
-    I[Unity DI] -. injects dependencies .-> B
-    I -. injects dependencies .-> C
-    I -. injects dependencies .-> E
+    Client -->|"HTTP / JSON"| Controller
+    Controller --> Service
+    Service --> Interface
+    Interface --> Repository
+    Repository --> EF
+    EF --> DB
 
-    J[GlobalExceptionFilter] -. handles exceptions .-> B
-    K[log4net] -. application logging .-> C
+    Unity["Unity DI"] -.-> Controller
+    Unity -.-> Service
+    Unity -.-> Repository
+
+    Mapper["AutoMapper"] -.-> Repository
+    Logger["log4net"] -.-> Service
+    Filter["GlobalExceptionFilter"] -.-> Controller
 ```
 
-The application separates responsibilities into layers instead of placing business logic directly inside controllers.
+The application follows a layered structure in which HTTP handling, business logic, and data access are separated into different responsibilities.
+
+```text
+Presentation
+     ↓
+Controller
+     ↓
+Service
+     ↓
+Repository Abstraction
+     ↓
+Repository Implementation
+     ↓
+Persistence
+```
 
 ---
 
@@ -68,12 +107,14 @@ The application separates responsibilities into layers instead of placing busine
 | Controller handles most logic | Controller → Service → Repository |
 | In-memory data | Entity Framework + SQL Server LocalDB |
 | Concrete dependencies | Dependency Injection with Unity |
-| Manual DTO / Entity mapping | AutoMapper |
-| Repeated `try-catch` blocks | Global Exception Filter |
+| Direct repository dependency | `IHomeRepository` abstraction |
+| Manual DTO / Entity conversion | Centralized AutoMapper profiles |
+| Repeated error handling | Global Exception Filter |
 | No centralized logging | log4net |
-| Manual verification only | MSTest unit tests |
-| Direct implementation dependency | `IHomeRepository` abstraction |
-| No database schema history | EF Code First Migrations |
+| Manual verification | MSTest unit tests |
+| No schema version history | EF Code First Migrations |
+
+The focus of the project is therefore not simply adding features, but progressively improving **separation of concerns, testability, maintainability, and extensibility**.
 
 ---
 
@@ -81,134 +122,131 @@ The application separates responsibilities into layers instead of placing busine
 
 ```mermaid
 flowchart LR
-    A[Basic MVC CRUD]
-    --> B[Service Layer]
-    --> C[Repository Pattern]
-    --> D[Dependency Injection]
-    --> E[Unit Testing]
-    --> F[Logging]
-    --> G[Validation]
-    --> H[Entity Framework]
-    --> I[Code First Migration]
-    --> J[Global Exception Handling]
-    --> K[AutoMapper]
-    --> L[Pagination]
+    A["Basic MVC CRUD"]
+    --> B["Service Layer"]
+    --> C["Repository"]
+    --> D["Dependency Injection"]
+    --> E["Unit Testing"]
+    --> F["Logging"]
+    --> G["Validation"]
+    --> H["Entity Framework"]
+    --> I["Migrations"]
+    --> J["Global Exception Handling"]
+    --> K["AutoMapper"]
+    --> L["Pagination"]
 
     style K fill:#d1fae5
     style L fill:#fef3c7
 ```
 
-The repository intentionally keeps the implementation history visible so that each step represents a separate backend concept and refactoring decision.
+**Current stage:** AutoMapper integration completed.  
+**Next:** Server-side pagination.
+
+Each stage is implemented incrementally so that the reason for introducing each architectural component remains visible in the repository history.
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Technical Details
 
-### Backend
+## Layered Architecture
 
-- C#
-- .NET Framework 4.8
-- ASP.NET MVC 5
-- Entity Framework 6
-- Unity
-- AutoMapper
-- log4net
+### Controller
 
-### Database
+The controller is responsible for the HTTP boundary.
 
-- SQL Server LocalDB
-- Entity Framework Code First
-- EF Migrations
+It receives requests, delegates business operations to the service layer, and returns appropriate HTTP responses.
 
-### Frontend
+```text
+HTTP Request
+     ↓
+Controller
+     ↓
+Service
+```
 
-- Razor View
-- Vue.js
-- Fetch API
-- JSON-based client/server communication
+Business rules and database operations are intentionally kept outside the controller.
 
-### Testing & Development
+### Service
 
-- MSTest
-- Git
-- GitHub Issues
-- Feature Branch Workflow
-- Pull Requests
-- Visual Studio
+The service layer contains application-level validation and business logic.
 
----
+Examples include:
 
-## ✨ Implemented Features
-
-### Message CRUD
-
-The application currently supports:
-
-- Create messages
-- Read messages
-- Update messages
-- Delete messages
-
-### Layered Architecture
-
-Responsibilities are separated into:
+- Null request validation
+- Empty message validation
+- Coordinating repository operations
+- Logging application events
 
 ```text
 Controller
     ↓
-Service
+HomeService
     ↓
-Repository Interface
-    ↓
-Repository Implementation
-    ↓
-Database
+IHomeRepository
 ```
 
-### Dependency Injection
+### Repository
 
-Unity is used to resolve dependencies instead of manually creating objects inside application logic.
-
-Examples:
+The repository layer encapsulates persistence logic.
 
 ```text
 IHomeRepository
-      ↓
+        ↓
 EntityFrameworkHomeRepository
-
-ApplicationDbContext
-      ↓
-Injected into Repository
-
-IMapper
-      ↓
-Injected into Repository
+        ↓
+Entity Framework
+        ↓
+SQL Server
 ```
+
+The service depends on the interface rather than directly depending on Entity Framework.
+
+This allows business logic to remain independent from the concrete persistence implementation.
 
 ---
 
-## 🗄️ Entity Framework & Database
+## 💉 Dependency Injection
 
-The application uses **Entity Framework 6** for database persistence.
+Unity is used to resolve application dependencies instead of manually constructing them inside application logic.
 
-```mermaid
-flowchart LR
-    A[ApplicationDbContext]
-    --> B[DbSet Message]
-    --> C[Entity Framework 6]
-    --> D[(SQL Server LocalDB)]
+```text
+HomeController
+     ↓
+HomeService
+
+HomeService
+     ↓
+IHomeRepository
+
+IHomeRepository
+     ↓
+EntityFrameworkHomeRepository
+
+EntityFrameworkHomeRepository
+     ↓
+ApplicationDbContext
+     ↓
+IMapper
 ```
 
-Entity Framework is currently used for:
+This reduces coupling between layers and improves testability.
 
-- `DbContext`
-- `DbSet`
-- LINQ queries
-- Code First
-- Migrations
-- CRUD persistence
+---
 
-Database schema changes are managed through EF migrations.
+## 🗄️ Persistence
+
+The application uses **Entity Framework 6** with **SQL Server LocalDB**.
+
+| Component | Responsibility |
+|---|---|
+| `ApplicationDbContext` | Entity Framework database context |
+| `DbSet<Message>` | Message persistence |
+| LINQ | Database querying |
+| Code First | Schema generation from entities |
+| EF Migrations | Schema version management |
+| SQL Server LocalDB | Local development database |
+
+Database schema changes are managed using migrations:
 
 ```powershell
 Enable-Migrations
@@ -216,104 +254,109 @@ Add-Migration InitialCreate
 Update-Database
 ```
 
+This replaced the original in-memory message storage with persistent relational data.
+
 ---
 
 ## 🔄 DTO / Entity Mapping
 
-Request and response DTOs are separated from persistence entities.
+Persistence entities are separated from request and response models.
 
-```mermaid
-flowchart LR
-    A[CreateMessageRequest] --> B[Message Entity]
-    C[UpdateMessageRequest] --> B
-    B --> D[MessageResponse]
-```
+| Source | Destination | Purpose |
+|---|---|---|
+| `CreateMessageRequest` | `Message` | Create entity |
+| `UpdateMessageRequest` | `Message` | Update existing entity |
+| `Message` | `MessageResponse` | Generate response DTO |
 
-AutoMapper centralizes object mapping rules.
-
-Example mappings:
+AutoMapper centralizes these transformations.
 
 ```text
 CreateMessageRequest.Message
-          ↓
-Message.MessageText
+              ↓
+      Message.MessageText
+
 
 UpdateMessageRequest.Message
-          ↓
-Message.MessageText
+              ↓
+      Message.MessageText
 
-Message.MessageText
-          ↓
-MessageResponse.Message
+
+      Message.MessageText
+              ↓
+    MessageResponse.Message
 ```
 
-This removes repeated manual mapping code from the repository layer.
+This removes repetitive manual mapping logic from repository methods.
 
 ---
 
 ## ✅ Validation
 
-Business validation is handled in the service layer.
+Business validation is performed in the service layer before persistence operations are executed.
+
+Current validation covers:
+
+- Null requests
+- Empty messages
+- Invalid input
+- Missing resources
 
 Example:
 
 ```text
-Empty Message
+POST request
+     ↓
+HomeController
      ↓
 HomeService
      ↓
+Is Message empty?
+     ↓
 ArgumentException
-     ↓
-GlobalExceptionFilter
-     ↓
-400 Bad Request
 ```
 
-Current validation includes:
-
-- Null request validation
-- Empty message validation
-- Invalid input handling
-- Missing resource handling
+Keeping validation in the service layer allows the same business rules to remain valid regardless of how the service is called.
 
 ---
 
-## 🚨 Global Exception Handling
+## 🚨 Exception Handling
 
-Exceptions are handled centrally through an ASP.NET MVC exception filter.
+Application exceptions are translated into HTTP responses by a centralized MVC exception filter.
 
-| Exception | HTTP Response |
+| Exception | HTTP Status |
 |---|---|
 | `ArgumentException` | `400 Bad Request` |
 | `KeyNotFoundException` | `404 Not Found` |
 | Unexpected Exception | `500 Internal Server Error` |
 
 ```mermaid
-flowchart TD
-    A[Request] --> B{Valid Request?}
+flowchart LR
+    Request["HTTP Request"] --> Service["Service"]
 
-    B -->|No| C[ArgumentException]
-    C --> D[GlobalExceptionFilter]
-    D --> E[400 Bad Request]
+    Service -->|"Invalid input"| Bad["ArgumentException"]
+    Service -->|"Resource missing"| Missing["KeyNotFoundException"]
+    Service -->|"Unexpected failure"| Error["Exception"]
 
-    B -->|Yes| F{Resource Exists?}
+    Bad --> Filter["GlobalExceptionFilter"]
+    Missing --> Filter
+    Error --> Filter
 
-    F -->|No| G[KeyNotFoundException]
-    G --> D
-    D --> H[404 Not Found]
-
-    F -->|Yes| I[Business Logic]
+    Filter --> R400["400"]
+    Filter --> R404["404"]
+    Filter --> R500["500"]
 ```
 
-This avoids duplicated `try-catch` blocks inside individual controller actions.
+This prevents controller actions from containing duplicated exception-handling logic.
 
 ---
 
 ## 📝 Logging
 
-Application logging is implemented with **log4net**.
+Application logging is implemented using **log4net**.
 
-Examples of logged events:
+The logging layer records important application events and failures without mixing infrastructure concerns with business logic.
+
+Examples:
 
 ```text
 Message created
@@ -323,237 +366,310 @@ Validation warning
 Unexpected application error
 ```
 
-Logging configuration is isolated in:
+Logging configuration is separated into:
 
 ```text
 log4net.config
 ```
 
-This keeps logging configuration separated from application code.
-
 ---
 
-## 🔄 Request Flow
+# 🔄 Request Lifecycle
 
-### Create Message
+A message creation request currently travels through the application as follows:
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant V as Vue.js
-    participant C as HomeController
-    participant S as HomeService
-    participant R as Repository
-    participant M as AutoMapper
+    actor User
+    participant Vue as Vue.js
+    participant Controller as HomeController
+    participant Service as HomeService
+    participant Repository as Repository
+    participant Mapper as AutoMapper
     participant DB as SQL Server
 
-    U->>V: Add message
-    V->>C: POST /Home/AddMessage
-    C->>S: AddMessage(request)
-    S->>S: Validate request
-    S->>R: AddMessage(request)
-    R->>M: Map DTO to Entity
-    M-->>R: Message Entity
-    R->>DB: INSERT
-    DB-->>R: Saved
-    R-->>S: Complete
-    S-->>C: Complete
-    C-->>V: HTTP 200
+    User->>Vue: Add Message
+    Vue->>Controller: POST /Home/AddMessage
+
+    Controller->>Service: AddMessage(request)
+    Service->>Service: Validate
+
+    Service->>Repository: AddMessage(request)
+    Repository->>Mapper: DTO → Entity
+    Mapper-->>Repository: Message
+
+    Repository->>DB: INSERT
+    DB-->>Repository: Saved
+
+    Repository-->>Service: Complete
+    Service-->>Controller: Complete
+    Controller-->>Vue: HTTP 200
+
+    Vue->>Controller: GET /Home/GetMessages
 ```
 
-### Read Messages
-
-```mermaid
-sequenceDiagram
-    participant V as Vue.js
-    participant C as HomeController
-    participant S as HomeService
-    participant R as Repository
-    participant DB as SQL Server
-    participant M as AutoMapper
-
-    V->>C: GET /Home/GetMessages
-    C->>S: GetMessages()
-    S->>R: GetMessages()
-    R->>DB: SELECT Messages
-    DB-->>R: Message Entities
-    R->>M: Map Entities to DTOs
-    M-->>R: MessageResponse List
-    R-->>S: Results
-    S-->>C: Results
-    C-->>V: JSON Response
-```
+The important point is that each layer has a limited responsibility rather than allowing HTTP, business logic, mapping, and database access to become mixed together.
 
 ---
 
-## 🧪 Testing
+# 🧪 Testing
 
-The project uses **MSTest** to verify service behavior independently from the real database.
+The project uses **MSTest** to test service-layer behavior.
 
-Current tests cover areas such as:
+Tests currently cover scenarios such as:
 
 - Successful message creation
 - Empty message validation
 - Null request validation
-- Update behavior
-- Delete behavior
+- Successful updates
+- Successful deletion
 - Invalid IDs
-- Exception behavior
+- Expected exception behavior
 
-The service layer can be tested without a real database because it depends on:
+The service depends on:
 
-```text
+```csharp
 IHomeRepository
 ```
 
-instead of a concrete Entity Framework repository implementation.
+rather than:
+
+```csharp
+EntityFrameworkHomeRepository
+```
+
+which allows service behavior to be tested without requiring the real SQL Server database.
+
+```text
+Test
+ ↓
+HomeService
+ ↓
+Fake / Test Repository
+```
+
+This was one of the main reasons for introducing repository abstraction and dependency injection.
 
 ---
 
-## 🔧 Development Workflow
+# 🔧 Development Workflow
 
-Features are implemented using an issue-driven Git workflow.
+Changes are developed through an issue-driven Git workflow.
 
 ```mermaid
 flowchart LR
-    A[GitHub Issue]
-    --> B[Feature Branch]
-    --> C[Implementation]
-    --> D[Build]
-    --> E[Tests]
-    --> F[Pull Request]
-    --> G[Merge]
+    Issue["GitHub Issue"]
+    --> Branch["Feature Branch"]
+    --> Code["Implementation"]
+    --> Build["Build"]
+    --> Test["Tests"]
+    --> PR["Pull Request"]
+    --> Merge["Merge"]
 ```
 
-Each major backend concept is implemented as an independent issue.
+Each architectural improvement is handled as an independent change rather than being introduced as one large rewrite.
 
-This makes the repository not only a source code project, but also a record of the application's architectural evolution.
+```text
+Issue
+  ↓
+Feature Branch
+  ↓
+Implementation
+  ↓
+Build
+  ↓
+Test
+  ↓
+Pull Request
+  ↓
+Merge
+```
+
+This also keeps the repository history useful for reviewing how the application evolved.
 
 ---
 
-## 📊 Current Progress
+# 📊 Progress
 
-- [x] MVC structure
+### Application Architecture
+
+- [x] ASP.NET MVC structure
 - [x] Controller / Service separation
 - [x] Repository Pattern
 - [x] Repository abstraction
 - [x] Dependency Injection
-- [x] Unit testing
-- [x] log4net logging
-- [x] Service-layer validation
+
+### Persistence
+
 - [x] Entity Framework 6
 - [x] SQL Server LocalDB
-- [x] Code First Migration
+- [x] Code First
+- [x] EF Migrations
+
+### Maintainability
+
+- [x] DTO separation
+- [x] AutoMapper
+- [x] Service-layer validation
 - [x] Global Exception Handling
 - [x] HTTP 400 / 404 / 500 mapping
-- [x] AutoMapper
+- [x] log4net
+
+### Testing
+
+- [x] MSTest
+- [x] Service unit tests
+- [x] Validation tests
+- [x] Exception tests
+
+### Query Features
+
 - [ ] Server-side Pagination
 - [ ] Search / Filtering
 - [ ] Sorting
 - [ ] Async Entity Framework
+
+### Security
+
 - [ ] Authentication
 - [ ] Authorization
-- [ ] Redis
-- [ ] Docker
-- [ ] GitHub Actions CI/CD
-
----
-
-## 🗺️ Roadmap
-
-### Near Term
-
-- Server-side pagination
-- Search and filtering
-- Sorting
-- Async database operations
-
-### Backend Improvements
-
-- Authentication
-- Authorization
-- Transaction handling
-- Database indexing
-- API response standardization
 
 ### Infrastructure
 
-- Redis caching
-- Docker
-- GitHub Actions
-- Deployment
-
-### Next Generation
-
-- ASP.NET Core
-- PostgreSQL
-- Modern .NET backend architecture
-- Clean Architecture
-- CQRS fundamentals
+- [ ] Redis
+- [ ] Docker
+- [ ] GitHub Actions
+- [ ] Deployment
 
 ---
 
-## 🎯 Engineering Goals
+# 🗺️ Roadmap
 
-This repository is being used to practice backend engineering concepts beyond basic CRUD implementation.
+```mermaid
+flowchart LR
+    Current["Current<br/>AutoMapper"]
+    --> P["Pagination"]
+    --> Search["Search / Filtering"]
+    --> Sort["Sorting"]
+    --> Async["Async EF"]
+    --> Auth["Authentication"]
+    --> Cache["Redis"]
+    --> Docker["Docker"]
+    --> CI["CI/CD"]
 
-Key areas include:
+    style Current fill:#d1fae5
+    style P fill:#fef3c7
+```
+
+### Phase 1 — Query Features
+
+Server-side pagination  
+→ Search and filtering  
+→ Sorting  
+→ Async database operations
+
+### Phase 2 — Backend Reliability
+
+Transaction handling  
+→ Database indexing  
+→ API response standardization  
+→ Additional integration testing
+
+### Phase 3 — Security
+
+Authentication  
+→ Authorization
+
+### Phase 4 — Infrastructure
+
+Redis caching  
+→ Docker  
+→ GitHub Actions  
+→ Deployment
+
+### Phase 5 — Modern .NET
+
+After completing the .NET Framework version, the concepts learned here can be applied to:
+
+```text
+ASP.NET Core
+     ↓
+Modern Entity Framework
+     ↓
+PostgreSQL
+     ↓
+Modern .NET Backend Architecture
+```
+
+---
+
+# 🎯 What This Project Is Teaching Me
+
+The primary objective of this repository is to move beyond implementing CRUD operations and understand the engineering decisions surrounding them.
+
+### Architecture
 
 - Separation of concerns
 - Layered architecture
-- Dependency Injection
 - Repository abstraction
-- ORM design
-- Database persistence
+- Dependency Injection
+
+### Data
+
+- ORM-based persistence
+- LINQ queries
 - Database migrations
-- DTO design
+- DTO / Entity separation
 - Object mapping
+
+### Reliability
+
+- Input validation
 - Exception propagation
-- HTTP status codes
-- Logging
-- Unit testing
-- Client/server communication
+- HTTP status semantics
+- Centralized logging
+
+### Testability
+
+- Interface-based dependencies
+- Service-layer unit testing
+- Testing failure scenarios
+
+### Development Process
+
 - Incremental refactoring
-- Git-based engineering workflow
+- Issue-driven development
+- Feature branches
+- Pull Requests
+- Small architectural changes instead of large rewrites
 
 ---
 
-## 🧭 Current Stage
+# 💡 Project Philosophy
 
-```mermaid
-flowchart TD
-    A[Basic MVC CRUD]
-    --> B[Layered Architecture]
-    --> C[Dependency Injection]
-    --> D[Unit Testing]
-    --> E[Logging]
-    --> F[Validation]
-    --> G[Entity Framework]
-    --> H[Database Migration]
-    --> I[Global Exception Handling]
-    --> J[AutoMapper]
-    --> K[Pagination]
-    --> L[Search / Filtering]
-    --> M[Async EF]
-    --> N[Authentication]
-    --> O[Redis / Docker / CI]
+This project intentionally evolves from a small application rather than starting with a complex architecture.
+
+```text
+Simple CRUD
+     ↓
+Identify a limitation
+     ↓
+Introduce a solution
+     ↓
+Understand why it is needed
+     ↓
+Test the change
+     ↓
+Integrate it
+     ↓
+Repeat
 ```
 
-**Current focus:** server-side pagination and query-oriented backend features.
+For every new technology or pattern, the goal is to answer four questions:
 
----
+> **Why is it needed?**  
+> **What problem does it solve?**  
+> **Where should it belong?**  
+> **How does it affect the existing architecture?**
 
-## 📌 Project Philosophy
-
-Rather than rebuilding the application from scratch whenever a new concept is learned, this project evolves incrementally.
-
-Each feature introduces a new backend concern while preserving previous functionality.
-
-The objective is to understand not only **how to implement a technology**, but also:
-
-> Why is it needed?  
-> Where should it belong?  
-> What problem does it solve?  
-> How does it affect the existing architecture?
-
-This repository documents that progression.
+The repository therefore serves both as a working application and as a record of my progression toward building more maintainable backend systems.
