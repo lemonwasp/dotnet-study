@@ -13,7 +13,11 @@ createApp({
             messages: [],
             newMessage: '',
             editingId: null,
-            editingMessage: ''
+            editingMessage: '',
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            totalPages: 0
         };
     },
 
@@ -34,7 +38,9 @@ createApp({
                 // awaitはレスポンスが来るまで処理を一時停止する
                 // しかし、ブラウザ全体が止まるわけではなく、他の処理は継続される
                 // fetch()が返すのはJSONデータではなく、HTTPレスポンスオブジェクト
-                const response = await fetch('/Home/GetMessages');
+                const response = await fetch(
+                    `/Home/GetMessages?page=${this.page}&pageSize=${this.pageSize}`
+                );
 
                 if (!response.ok) {
                     throw new Error(`HTTP error: ${response.status}`);
@@ -47,12 +53,34 @@ createApp({
                 // data.message -> this.message -> {{ message }} -> 画面更新
                 // this.message = data.Message;
                 // this.createdAt = data.CreatedAt;
-                this.messages = data;
+                this.messages = data.Items;
+                this.page = data.Page;
+                this.pageSize = data.PageSize;
+                this.totalCount = data.TotalCount;
+                this.totalPages = data.TotalPages;
                 // ネットワークエラーやJSONパーシングエラーが発生すると、
                 // 開発者ツールのコンソールにエラーメッセージが表示される
             } catch (error) {
                 console.error('Error fetching message:', error);
             }
+        },
+
+        async previousPage() {
+            if (this.page <= 1) {
+                return;
+            }
+
+            this.page--;
+            await this.loadMessages();
+        },
+
+        async nextPage() {
+            if (this.page >= this.totalPages) {
+                return;
+            }
+
+            this.page++;
+            await this.loadMessages();
         },
 
         async addMessage() {
@@ -78,6 +106,7 @@ createApp({
                 }
 
                 this.newMessage = '';
+                this.page = 1;
 
                 await this.loadMessages();
             } catch (error) {
@@ -87,7 +116,7 @@ createApp({
 
         startEdit(message) {
             this.editingId = message.Id;
-            this.edtingMessage = message.Message;
+            this.editingMessage = message.Message;
         },
 
         cancelEdit() {
@@ -126,6 +155,10 @@ createApp({
         },
 
         async deleteMessage(id) {
+            if (!confirm("Delete this message?")) {
+                return;
+            }
+
             try {
                 const response = await fetch('/Home/DeleteMessage', {
                     method: 'POST',
@@ -137,18 +170,13 @@ createApp({
                     })
                 });
 
-                if (!confirm("Delete this message?")) {
-                    return;
-                }
-
                 if (!response.ok) {
-                    throw new Error(`Http error: ${response.status}`);
+                    throw new Error(`HTTP error: ${response.status}`);
                 }
 
                 await this.loadMessages();
-            }
-            catch (error) {
-                console.error(error);
+            } catch (error) {
+                console.error('Error deleting message:', error);
             }
         },
 

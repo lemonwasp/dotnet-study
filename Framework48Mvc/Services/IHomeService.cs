@@ -8,7 +8,7 @@ namespace Framework48Mvc.Services
 {
     public interface IHomeService
     {
-        List<MessageResponse> GetMessages();
+        PagedResponse<MessageResponse> GetMessages(PaginationRequest request);
 
         void AddMessage(CreateMessageRequest request);
 

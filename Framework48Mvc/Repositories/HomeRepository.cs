@@ -9,6 +9,8 @@ namespace Framework48Mvc.Repositories
     public class HomeRepository : IHomeRepository
     {
         private readonly List<MessageResponse> _messages;
+
+
         public HomeRepository()
         {
             _messages = new List<MessageResponse>
@@ -33,9 +35,18 @@ namespace Framework48Mvc.Repositories
                 }
             };
         }
-        public List<MessageResponse> GetMessages()
+        public List<MessageResponse> GetMessages(int skip, int take)
         {
-            return _messages;
+            return _messages
+                .OrderByDescending(message => message.Id)
+                .Skip(skip)
+                .Take(take)
+                .ToList();
+        }
+
+        public int GetMessageCount()
+        {
+            return _messages.Count;
         }
 
         public void AddMessage(CreateMessageRequest request)

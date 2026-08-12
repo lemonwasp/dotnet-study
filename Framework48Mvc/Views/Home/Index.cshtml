@@ -7,18 +7,16 @@
 @*JavaScriptで.mountを実行すると、Vueがid="app"の要素を探して管理する*@
 <div id="app">
     @*{{　}}はテキストを表示するための構文
-    HTMLファイル自体が再レンダリングされることではなく、
-    ブラウザで表示されるDOMが更新される
-    Vueデータ変更→Vueが変更感知→DOM更新*@
+        HTMLファイル自体が再レンダリングされることではなく、
+        ブラウザで表示されるDOMが更新される
+        Vueデータ変更→Vueが変更感知→DOM更新*@
     <h2>Messages</h2>
 
     <div>
-        <input
-            v-model="newMessage"
-            type="text"
-            placeholder="Enter a message"
-        /> 
-        
+        <input v-model="newMessage"
+               type="text"
+               placeholder="Enter a message" />
+
         <button type="button" v-on:click="addMessage">
             Add
         </button>
@@ -31,7 +29,7 @@
     <ul v-else>
         <li v-for="message in messages" :key="message.Id">
             <template v-if="message.Id === editingId">
-                <input v-model="editingMessage" type="text"/>
+                <input v-model="editingMessage" type="text" />
 
                 <button type="button" v-on:click="updateMessage">
                     Save
@@ -59,6 +57,25 @@
             </template>
         </li>
     </ul>
+
+    <div>
+        <button type="button"
+                v-on:click="previousPage"
+                v-bind:disabled="page <= 1">
+            Previous
+        </button>
+
+        <span>
+            Page {{ totalPages === 0 ? 0 : page }} / {{ totalPages }}
+            ({{ totalCount }} total)
+        </span>
+
+        <button type="button"
+                v-on:click="nextPage"
+                v-bind:disabled="page >= totalPages">
+            Next
+        </button>
+    </div>
 
     @*<button type="button" v-on:click="count++">
             클릭 횟수 : {{ count }}
