@@ -22,13 +22,20 @@ namespace Framework48Mvc.Repositories
             _mapper = mapper;
         }
 
-        public List<MessageResponse> GetMessages()
+        public List<MessageResponse> GetMessages(int skip, int take)
         {
             var messages = _context.Messages
                 .OrderByDescending(message => message.Id)
+                .Skip(skip)
+                .Take(take)
                 .ToList();
 
             return _mapper.Map<List<MessageResponse>>(messages);
+        }
+
+        public int GetMessageCount()
+        {
+            return _context.Messages.Count();
         }
 
         public void AddMessage(CreateMessageRequest request)

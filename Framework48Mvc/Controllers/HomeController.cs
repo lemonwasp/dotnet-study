@@ -35,13 +35,19 @@ namespace Framework48Mvc.Controllers
         [HttpGet]
         // ActionResultの派生クラスであるJsonResultを返すことで、
             // JSON形式のデータを返すことができる
-        public JsonResult GetMessages()
+        public JsonResult GetMessages(PaginationRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                throw new ArgumentException(
+                    "Page and pageSize must be valid integers.");
+            }
+
             // varは右の値を推論して型を決定するキーワードであり、
             // ここではHomeServiceのGetMessageメソッドが返すオブジェクトを受け取る
             // コンパイル時に型が決定されるため、実行時のパフォーマンスに影響しない
             // つまり、varは動的型ではなく、静的型であるため、型安全性が保たれる
-            var result = _homeService.GetMessages();
+            var result = _homeService.GetMessages(request);
 
             // C#オブジェクトをJSON形式にシリアライズして返すためのメソッド
             return Json(

@@ -25,11 +25,20 @@ namespace Framework48Mvc.Tests.Fakes
                     CreatedAt = new DateTime(2026, 8, 3)
                 }
             };
- 
-        
-        public List<MessageResponse> GetMessages()
+
+
+        public int GetMessageCount()
         {
-            return _messages;
+            return _messages.Count;
+        }
+
+        public List<MessageResponse> GetMessages(int skip, int take)
+        {
+            return _messages
+                .OrderByDescending(message => message.Id)
+                .Skip(skip)
+                .Take(take)
+                .ToList();
         }
 
         public void AddMessage(CreateMessageRequest request)

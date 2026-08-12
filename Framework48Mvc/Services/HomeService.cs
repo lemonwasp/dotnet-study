@@ -13,10 +13,11 @@ namespace Framework48Mvc.Services
         //    // 匿名オブジェクトを返す
         //    return new
         //    {
-            //        message = "Service에서 생성한 데이터",
+        //        message = "Service에서 생성한 데이터",
         //        createdAt = DateTime.Now
         //    };
         //}
+        private const int MaxPageSize = 100;
         private readonly IHomeRepository _homeRepository;
         private static readonly ILog _logger = LogManager.GetLogger(typeof(HomeService));
         public HomeService(IHomeRepository homeRepository)
@@ -24,9 +25,41 @@ namespace Framework48Mvc.Services
             _homeRepository = homeRepository;
         }
 
-        public List<MessageResponse> GetMessages()
+        public PagedResponse<MessageResponse> GetMessages(PaginationRequest request)
         {
-            return _homeRepository.GetMessages();
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.Page <= 0)
+            {
+                throw new ArgumentException(
+                    "Page must be greater than zero.",
+                    nameof(request.Page));
+            }
+
+            if (request.PageSize <= 0 || request.PageSize > MaxPageSize)
+            {
+                throw new ArgumentException(
+                    "PageSize must be between 1 and 100.",
+                    nameof(request.PageSize));
+            }
+
+            var skip = (request.Page - 1) * request.PageSize;
+            var totalCount = _homeRepository.GetMessageCount();
+            var messages = _homeRepository.GetMessages(skip, request.PageSize);
+            var totalPages = (int)Math.Ceiling(
+                (double)totalCount / request.PageSize);
+
+            return new PagedResponse<MessageResponse>
+            {
+                Items = messages,
+                Page = request.Page,
+                PageSize = request.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
         }
 
         public void AddMessage(CreateMessageRequest request)

@@ -71,6 +71,75 @@ namespace Framework48Mvc.Tests
             Assert.ThrowsExactly<ArgumentException>(
                 () => service.DeleteMessage(0));
         }
+
+        [TestMethod]
+        public void GetMessages_ReturnsRequestedPageAndMetadata()
+        {
+            var repository = new FakeHomeRepository();
+            var service = new HomeService(repository);
+            var request = new PaginationRequest
+            {
+                Page = 2,
+                PageSize = 1
+            };
+
+            var result = service.GetMessages(request);
+
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.AreEqual(1, result.Items[0].Id);
+            Assert.AreEqual(2, result.Page);
+            Assert.AreEqual(1, result.PageSize);
+            Assert.AreEqual(2, result.TotalCount);
+            Assert.AreEqual(2, result.TotalPages);
+        }
+
+        [TestMethod]
+        public void GetMessages_ReturnsEmptyItems_WhenPageIsOutOfRange()
+        {
+            var repository = new FakeHomeRepository();
+            var service = new HomeService(repository);
+            var request = new PaginationRequest
+            {
+                Page = 3,
+                PageSize = 1
+            };
+
+            var result = service.GetMessages(request);
+
+            Assert.AreEqual(0, result.Items.Count);
+            Assert.AreEqual(2, result.TotalCount);
+            Assert.AreEqual(2, result.TotalPages);
+        }
+
+        [TestMethod]
+        public void GetMessages_ThrowsArgumentException_WhenPageIsInvalid()
+        {
+            var repository = new FakeHomeRepository();
+            var service = new HomeService(repository);
+            var request = new PaginationRequest
+            {
+                Page = 0,
+                PageSize = 10
+            };
+
+            Assert.ThrowsExactly<ArgumentException>(
+                () => service.GetMessages(request));
+        }
+
+        [TestMethod]
+        public void GetMessages_ThrowsArgumentException_WhenPageSizeIsInvalid()
+        {
+            var repository = new FakeHomeRepository();
+            var service = new HomeService(repository);
+            var request = new PaginationRequest
+            {
+                Page = 1,
+                PageSize = 101
+            };
+
+            Assert.ThrowsExactly<ArgumentException>(
+                () => service.GetMessages(request));
+        }
     }
 }
     
