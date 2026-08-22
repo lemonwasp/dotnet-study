@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  poem: false
+  review_status: true
+  review_details: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/packages/**"
+    - "!**/*.min.js"
+    - "!**/*.map"
+
+  path_instructions:
+    - path: "Framework48Mvc/**/*.cs"
+      instructions: |
+        Focus on correctness and maintainability in ASP.NET MVC 5 / .NET Framework 4.8 code.
+        Check separation of concerns across Controller, Service, and Repository layers.
+        Flag missing validation, incorrect HTTP-boundary behavior, exception-handling issues,
+        Entity Framework query inefficiencies, resource-lifetime problems, and regressions in pagination behavior.
+        Prefer actionable comments over style-only feedback.
+
+    - path: "Framework48Mvc.Tests/**/*.cs"
+      instructions: |
+        Review tests for behavioral coverage, boundary cases, and whether assertions verify outcomes rather than implementation details.
+        Pay special attention to validation failures, exception cases, empty results, pagination boundaries,
+        and regressions in service-layer behavior.
+        Avoid suggesting tests that duplicate existing coverage without adding meaningful value.
+
+chat:
+  auto_reply: true
