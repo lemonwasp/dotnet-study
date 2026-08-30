@@ -1,5 +1,7 @@
 # 🚀 Dotnet Backend Study
 
+**English** | [日本語](README.ja.md)
+
 > Evolving a simple ASP.NET MVC CRUD application into a structured and maintainable backend system.
 
 ![C#](https://img.shields.io/badge/C%23-.NET_Framework-512BD4)
