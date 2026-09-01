@@ -111,6 +111,11 @@ The service depends on `IHomeRepository`, not the concrete Entity Framework repo
 
 The goal is not simply adding features, but improving **separation of concerns, testability, maintainability, and extensibility** step by step.
 
+### Performance Case Study
+
+- [TIFF-to-PDF Conversion: From Test Data Generation to Performance Optimization](docs/tiff-to-pdf-performance.md)  
+  Built a multi-page TIFF test-data generator, selected libraries under licensing constraints, removed repeated disk I/O, corrected stream lifetime management, and improved conversion performance by approximately **4–4.7×**.
+
 ---
 
 ## 📈 Architecture Evolution
