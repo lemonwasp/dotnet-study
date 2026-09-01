@@ -57,15 +57,33 @@ The generator produced the fixtures used throughout validation and benchmarking:
 
 This made the work reproducible and allowed performance to be compared under controlled changes in page count.
 
-## 2. Initial Technical Validation
+## 2. Library Research and Constraints
 
-Reference implementations for this exact multi-page TIFF and .NET Framework combination were limited, so I investigated libraries and built a proof of concept around:
+### Limited Reference Material
 
-- **LibTiff** for reading TIFF pages;
-- **System.Drawing.Bitmap** for intermediate image handling;
-- **PDFsharp** for composing and saving the PDF.
+There were very few reference implementations for multi-page TIFF-to-PDF conversion in this .NET Framework environment. The work therefore had to begin with library research rather than adapting an established example.
 
-The first objective was to confirm that every TIFF page could be read and written into a PDF.
+The investigation focused on three separate responsibilities:
+
+- reading every page from a multi-page TIFF;
+- converting decoded pixel data into an image representation;
+- creating a PDF and adding each image as a page.
+
+### Licensing Constraint
+
+The implementation also had to use libraries available under a free license suitable for the project. Common all-in-one PDF conversion libraries could not simply be adopted under this constraint.
+
+Instead of using a dedicated TIFF-to-PDF converter, I selected **PDFsharp**, which is primarily a PDF generation library, and constructed the conversion pipeline explicitly:
+
+- **LibTiff** reads and decodes the TIFF pages;
+- **System.Drawing.Bitmap** holds the intermediate image data;
+- **PDFsharp** creates the PDF document and places each converted image onto a page.
+
+This increased the implementation work, but it satisfied the licensing constraint and kept each stage of the conversion under direct control.
+
+## 3. Initial Technical Validation
+
+With the library combination decided, I built a proof of concept. The first objective was to confirm that every TIFF page could be read and written into a PDF.
 
 ### Initial File-Based Flow
 
@@ -89,7 +107,7 @@ Create PNG
 
 As the TIFF page count increased, the cost of this cycle accumulated. Measurement showed that the primary bottleneck was **disk I/O**, not PDF serialization.
 
-## 3. Baseline Measurement
+## 4. Baseline Measurement
 
 | TIFF pages | File size | Processing time |
 |---:|---:|---:|
@@ -100,7 +118,7 @@ As the TIFF page count increased, the cost of this cycle accumulated. Measuremen
 
 The near-linear increase was consistent with an expensive file operation being repeated for every page.
 
-## 4. First Improvement: File-Based to In-Memory Processing
+## 5. First Improvement: File-Based to In-Memory Processing
 
 The temporary PNG workflow was replaced with an in-memory pipeline.
 
@@ -125,7 +143,7 @@ TIFF
 
 The intermediate image no longer needed to be saved, reopened, and deleted for every TIFF page. This removed the dominant disk I/O from the conversion path.
 
-## 5. Additional Problem: Stream Lifetime
+## 6. Additional Problem: Stream Lifetime
 
 Moving to `XImage.FromStream(...)` introduced an important object-lifetime issue.
 
@@ -139,7 +157,7 @@ The object-management strategy was changed so that:
 
 This was not only a performance change: correct resource lifetime became part of the converter's design.
 
-## 6. Further Improvement: Bulk Bitmap Creation
+## 7. Further Improvement: Bulk Bitmap Creation
 
 After eliminating disk I/O, bitmap construction was optimized separately.
 
@@ -165,7 +183,7 @@ LibTiff
   → PDF
 ```
 
-## 7. Final Results
+## 8. Final Results
 
 | TIFF pages | File size | Before | After | Speed-up | Time reduction |
 |---:|---:|---:|---:|---:|---:|
@@ -178,7 +196,7 @@ Across the measured cases, the final flow was approximately **4–4.7× faster**
 
 Across all four benchmarks, total elapsed time fell from **34.43 s to 7.76 s**, an overall improvement of approximately **4.44×**.
 
-## 8. Remaining Bottleneck
+## 9. Remaining Bottleneck
 
 After the main improvements, individual stages were measured again.
 
@@ -190,7 +208,7 @@ After the main improvements, individual stages were measured again.
 
 LibTiff decoding is now the largest remaining cost. PDF serialization is negligible, while bitmap construction has already been reduced to a relatively small part of total processing time.
 
-## 9. Why Optimization Stopped Here
+## 10. Why Optimization Stopped Here
 
 Further optimization of LibTiff decoding may be technically possible, but the expected gain is small relative to the required investigation and implementation effort.
 
@@ -210,6 +228,8 @@ The final design balances performance, correctness, resource management, maintai
 - When test data is unavailable, building a generator can be part of the engineering solution.
 - `EncoderValue.MultiFrame` makes controlled multi-page TIFF fixtures possible.
 - Controlled fixtures make technical validation and benchmarks reproducible.
+- Licensing is an architectural constraint and can determine whether a ready-made converter is usable.
+- When no all-in-one library fits, separating decoding, image processing, and PDF generation provides a workable design.
 - Prove feasibility first, then measure before optimizing.
 - Repeated temporary-file operations can dominate a page-based processing pipeline.
 - In-memory processing removes I/O but introduces resource-lifetime responsibilities.
