@@ -4,37 +4,49 @@
 
 ## Overview
 
-The requirement was to verify whether multi-page TIFF files could be converted reliably to PDF in a .NET Framework application and then make the conversion fast enough for practical use.
+The requirement was to validate multi-page TIFF-to-PDF conversion in a .NET Framework application and improve it to a practical performance level.
 
-The work began before the converter itself could be evaluated. No suitable multi-page TIFF samples were available, so I first built a dedicated test-data generation program. I then used the generated files to validate the conversion flow, establish a reproducible benchmark, identify bottlenecks, and optimize the implementation.
+No suitable multi-page TIFF samples were available at the start. I therefore built a test-data generator first, used its output to implement the initial converter, measured the result, and improved the design in multiple stages.
 
 ```text
 Build a multi-page TIFF generator
               ↓
 Generate controlled test files
               ↓
-Research and select image/PDF libraries
+Research libraries and validate conversion
               ↓
-Implement a TIFF-to-PDF proof of concept
+Implement a file-based version
               ↓
-Measure the baseline
+Measure and identify disk I/O
               ↓
-Profile individual processing stages
+Move intermediate processing to memory
               ↓
-Remove per-pixel and disk I/O bottlenecks
+Fix stream lifetime management
               ↓
-Measure again and evaluate further ROI
+Remove per-pixel bitmap overhead
+              ↓
+Measure the final result and evaluate further ROI
 ```
 
-## 1. Building the Test Data Generator
+## 1. Building a Multi-Page TIFF Generator
 
 ### Problem
 
-The technical validation required multi-page TIFF files, but no usable samples were provided. Depending on arbitrary files from the internet would also make the test conditions difficult to control and reproduce.
+The technical validation required TIFF files containing multiple pages, but no usable samples were provided. Without controlled input files, it would also be difficult to reproduce tests or compare processing time by page count.
 
-### Solution
+### Implementation
 
-I created a small program specifically for generating multi-page TIFF test data. Using this program, I produced TIFF files with different page counts and used the same controlled fixtures throughout development and benchmarking.
+I created a dedicated program for generating multi-page TIFF files. It used the .NET image encoder's save flag with `EncoderValue.MultiFrame` to create the first frame, append subsequent frames, and finalize a single multi-page TIFF.
+
+```text
+Create first frame with EncoderValue.MultiFrame
+                    ↓
+Append additional page frames
+                    ↓
+Finalize the multi-frame TIFF
+```
+
+The generator produced the fixtures used throughout validation and benchmarking:
 
 | Generated TIFF | File size |
 |---:|---:|
@@ -43,37 +55,39 @@ I created a small program specifically for generating multi-page TIFF test data.
 | 9 pages | 388 KB |
 | 30 pages | 1,298 KB |
 
-This provided:
+This made the work reproducible and allowed performance to be compared under controlled changes in page count.
 
-- reproducible inputs for technical validation;
-- controlled variation in page count;
-- data for observing how processing time scaled;
-- a repeatable benchmark for comparing implementations.
-
-Creating the test-data environment first made it possible to evaluate both correctness and performance without waiting for production files.
-
-## 2. Technical Validation
+## 2. Initial Technical Validation
 
 Reference implementations for this exact multi-page TIFF and .NET Framework combination were limited, so I investigated libraries and built a proof of concept around:
 
-- **LibTiff** for reading and decoding individual TIFF pages;
-- **System.Drawing.Bitmap** for creating image data;
+- **LibTiff** for reading TIFF pages;
+- **System.Drawing.Bitmap** for intermediate image handling;
 - **PDFsharp** for composing and saving the PDF.
 
-The first objective was feasibility: read every page from a TIFF file, preserve the multi-page structure, and write the pages into a PDF.
+The first objective was to confirm that every TIFF page could be read and written into a PDF.
 
-### Initial Flow
+### Initial File-Based Flow
 
 ```text
-LibTiff
-  → ReadRGBAImage
-  → Bitmap.SetPixel(...)
+TIFF
+  → Bitmap
   → temporary PNG file
   → XImage.FromFile(...)
   → PDF
 ```
 
-The implementation successfully produced PDFs, confirming that the required conversion was possible. The next step was to measure whether its performance was acceptable.
+This implementation proved that the conversion was possible, but every page repeated the following operations:
+
+```text
+Create PNG
+    → save file
+    → read file again
+    → add it to the PDF
+    → delete file
+```
+
+As the TIFF page count increased, the cost of this cycle accumulated. Measurement showed that the primary bottleneck was **disk I/O**, not PDF serialization.
 
 ## 3. Baseline Measurement
 
@@ -84,20 +98,52 @@ The implementation successfully produced PDFs, confirming that the required conv
 | 9 | 388 KB | 6.35 s |
 | 30 | 1,298 KB | 21.01 s |
 
-Processing time increased almost linearly with page count, indicating a repeated per-page cost.
+The near-linear increase was consistent with an expensive file operation being repeated for every page.
 
-Profiling identified two expensive operations:
+## 4. First Improvement: File-Based to In-Memory Processing
 
-- `Bitmap.SetPixel(...)` performed a managed method call for every pixel.
-- Each page was saved as a temporary PNG, read again, and deleted before being added to the PDF.
+The temporary PNG workflow was replaced with an in-memory pipeline.
 
-PDF serialization itself was not the main problem.
+### Before
 
-## 4. Optimization
+```text
+TIFF
+  → Bitmap
+  → temporary PNG file
+  → XImage.FromFile(...)
+  → PDF
+```
 
-### 4.1 Bulk Pixel Transfer
+### After
 
-Pixel-by-pixel bitmap construction was replaced with a locked bitmap buffer and a bulk memory copy.
+```text
+TIFF
+  → MemoryStream
+  → XImage.FromStream(...)
+  → PDF
+```
+
+The intermediate image no longer needed to be saved, reopened, and deleted for every TIFF page. This removed the dominant disk I/O from the conversion path.
+
+## 5. Additional Problem: Stream Lifetime
+
+Moving to `XImage.FromStream(...)` introduced an important object-lifetime issue.
+
+Creating an `XImage` does not always mean the underlying stream can be released immediately. PDFsharp may still require the stream's data while drawing the image or saving the PDF. Disposing the `MemoryStream` before `pdfDoc.Save(...)` could therefore cause failures or invalid output.
+
+The object-management strategy was changed so that:
+
+1. each page's stream remained alive while its `XImage` was in use;
+2. the PDF was completely saved;
+3. the related images and streams were then disposed deterministically.
+
+This was not only a performance change: correct resource lifetime became part of the converter's design.
+
+## 6. Further Improvement: Bulk Bitmap Creation
+
+After eliminating disk I/O, bitmap construction was optimized separately.
+
+Pixel-by-pixel processing with `Bitmap.SetPixel(...)` was replaced with a locked bitmap buffer and a bulk memory copy:
 
 ```text
 Bitmap.SetPixel(...)
@@ -106,13 +152,9 @@ Bitmap.LockBits(...)
 Marshal.Copy(...)
 ```
 
-`LockBits` exposes the bitmap's underlying buffer, allowing decoded pixel data to be copied in bulk instead of crossing the managed API boundary once per pixel.
+`LockBits` exposes the bitmap buffer so that the decoded pixel data can be copied in bulk, avoiding a managed method call for every pixel.
 
-### 4.2 In-Memory Image Pipeline
-
-The temporary PNG save/read/delete cycle was removed. Each page is now encoded as JPEG in a `MemoryStream` and passed directly to PDFsharp.
-
-### Final Flow
+### Final Processing Flow
 
 ```text
 LibTiff
@@ -123,9 +165,7 @@ LibTiff
   → PDF
 ```
 
-Because `XImage.FromStream(...)` may access its input lazily, the source stream remains alive until the corresponding image has been used and the PDF has been saved.
-
-## 5. Results
+## 7. Final Results
 
 | TIFF pages | File size | Before | After | Speed-up | Time reduction |
 |---:|---:|---:|---:|---:|---:|
@@ -134,13 +174,13 @@ Because `XImage.FromStream(...)` may access its input lazily, the source stream 
 | 9 | 388 KB | 6.35 s | 1.623 s | 3.91× | 74.4% |
 | 30 | 1,298 KB | 21.01 s | 4.535 s | 4.63× | 78.4% |
 
-Across the measured cases, the optimized flow was approximately **4–4.7× faster**, reducing total processing time by approximately **74–79%**.
+Across the measured cases, the final flow was approximately **4–4.7× faster**, reducing processing time by approximately **74–79%**.
 
 Across all four benchmarks, total elapsed time fell from **34.43 s to 7.76 s**, an overall improvement of approximately **4.44×**.
 
-## 6. Remaining Bottleneck
+## 8. Remaining Bottleneck
 
-After the main optimization, individual stages were measured again.
+After the main improvements, individual stages were measured again.
 
 | Stage | Approximate time per page |
 |---|---:|
@@ -148,28 +188,30 @@ After the main optimization, individual stages were measured again.
 | Bitmap creation and copy | 35–45 ms |
 | `pdfDoc.Save(...)` | 0–5 ms |
 
-LibTiff decoding is now the most expensive remaining operation. PDF serialization is negligible, and bitmap construction has already been reduced to a relatively small part of the total cost.
+LibTiff decoding is now the largest remaining cost. PDF serialization is negligible, while bitmap construction has already been reduced to a relatively small part of total processing time.
 
-## 7. Why Optimization Stopped Here
+## 9. Why Optimization Stopped Here
 
-Further optimization of the LibTiff decoding stage may be technically possible, but the expected gain is small relative to the required investigation and implementation effort.
+Further optimization of LibTiff decoding may be technically possible, but the expected gain is small relative to the required investigation and implementation effort.
 
-The optimization was intentionally stopped because:
+The work was intentionally stopped because:
 
-- the original high-cost operations were removed;
-- the current implementation already achieved approximately a fourfold improvement;
-- PDF generation no longer contributes meaningfully to total latency;
+- the repeated disk I/O was eliminated;
+- the per-pixel bitmap overhead was removed;
+- the implementation already achieved approximately a fourfold improvement;
+- PDF saving no longer contributes meaningfully to latency;
 - the remaining bottleneck is primarily TIFF decoding;
-- additional work would produce diminishing returns and increase complexity.
+- additional optimization would produce diminishing returns and increase complexity.
 
-The final design balances performance, maintainability, implementation complexity, and development cost.
+The final design balances performance, correctness, resource management, maintainability, and development cost.
 
 ## Lessons Learned
 
-- When required test data is unavailable, building a generator can be part of the engineering solution.
-- Controlled fixtures make technical validation and performance comparisons reproducible.
+- When test data is unavailable, building a generator can be part of the engineering solution.
+- `EncoderValue.MultiFrame` makes controlled multi-page TIFF fixtures possible.
+- Controlled fixtures make technical validation and benchmarks reproducible.
 - Prove feasibility first, then measure before optimizing.
-- Per-pixel managed calls can dominate image-processing workloads.
-- Avoid unnecessary disk I/O when intermediate data can remain in memory.
-- Stream lifetime is part of correctness when a library may read lazily.
-- The right stopping point is based on expected value, not the absence of further technical possibilities.
+- Repeated temporary-file operations can dominate a page-based processing pipeline.
+- In-memory processing removes I/O but introduces resource-lifetime responsibilities.
+- Per-pixel managed calls can dominate bitmap construction.
+- The correct stopping point is based on expected value, not the absence of further technical possibilities.
