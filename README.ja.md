@@ -103,8 +103,8 @@ Serviceは具象のEntity Framework Repositoryではなく`IHomeRepository`に�
 
 ### パフォーマンス改善事例
 
-- [TIFFからPDFへの変換：テストデータ生成から性能最適化まで](docs/tiff-to-pdf-performance.ja.md)  
-  マルチページTIFF生成プログラムの作成、ライセンス制約を踏まえたライブラリ選定、ディスクI/Oの除去、Streamのライフサイクル修正を行い、変換処理を約**4～4.7倍**高速化しました。
+- [TIFFからPDFへの変換処理：技術検証からパフォーマンス改善まで](https://github.com/lemonwasp/tiff-to-pdf-performance-case-study/blob/main/README.ja.md)  
+  テストデータ生成、ライブラリ選定、一時ファイルによるディスクI/Oの除去、`MemoryStream`を利用したインメモリ処理、Streamのライフサイクル管理までを別リポジトリのケーススタディとして整理しています。
 
 ---
 
