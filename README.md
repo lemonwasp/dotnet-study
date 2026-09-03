@@ -113,8 +113,8 @@ The goal is not simply adding features, but improving **separation of concerns, 
 
 ### Performance Case Study
 
-- [TIFF-to-PDF Conversion: From Test Data Generation to Performance Optimization](docs/tiff-to-pdf-performance.md)  
-  Built a multi-page TIFF test-data generator, selected libraries under licensing constraints, removed repeated disk I/O, corrected stream lifetime management, and improved conversion performance by approximately **4–4.7×**.
+- [TIFF-to-PDF Conversion: From Technical Validation to Performance Optimization](https://github.com/lemonwasp/tiff-to-pdf-performance-case-study)  
+  A separate case study covering test-data generation, library selection, repeated disk-I/O removal, in-memory processing with `MemoryStream`, and stream lifecycle management.
 
 ---
 
