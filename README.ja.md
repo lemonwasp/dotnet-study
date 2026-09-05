@@ -40,7 +40,7 @@
 | **ロギング** | log4net |
 | **フロントエンド** | Razor · Vue.js · Fetch API |
 | **テスト** | MSTest |
-| **開発フロー** | GitHub Issues · Feature Branches · Pull Requests |
+| **開発フロー** | GitHub Issue · 機能ブランチ · プルリクエスト |
 
 ---
 
@@ -86,14 +86,14 @@ Serviceは具象のEntity Framework Repositoryではなく`IHomeRepository`に�
 
 ## 🔥 主な改善内容
 
-| Before | After |
+| 改善前 | 改善後 |
 |---|---|
 | Controllerにロジックが集中 | Controller → Service → Repository |
 | インメモリデータ | Entity Framework + SQL Server LocalDB |
 | 具象クラスへの直接依存 | Unityによる依存性注入 |
 | Repositoryの具象実装に依存 | `IHomeRepository`による抽象化 |
 | DTO／Entityを手動変換 | AutoMapper Profileへ集約 |
-| 各所で重複する例外処理 | Global Exception Filter |
+| 各所で重複する例外処理 | 共通例外フィルター |
 | 集約されたログがない | log4net |
 | 手動確認のみ | MSTestによる単体テスト |
 | スキーマ変更履歴がない | EF Code First Migrations |
@@ -112,19 +112,19 @@ Serviceは具象のEntity Framework Repositoryではなく`IHomeRepository`に�
 
 ```mermaid
 flowchart LR
-    A["Basic MVC CRUD"]
-    --> B["Service Layer"]
+    A["基本MVC CRUD"]
+    --> B["Service層"]
     --> C["Repository"]
-    --> D["Dependency Injection"]
-    --> E["Unit Testing"]
-    --> F["Logging"]
-    --> G["Validation"]
+    --> D["依存性注入"]
+    --> E["単体テスト"]
+    --> F["ロギング"]
+    --> G["バリデーション"]
     --> H["Entity Framework"]
-    --> I["Migrations"]
-    --> J["Global Exception Handling"]
+    --> I["マイグレーション"]
+    --> J["共通例外処理"]
     --> K["AutoMapper"]
-    --> L["Pagination"]
-    --> M["Search / Filtering"]
+    --> L["ページネーション"]
+    --> M["検索 / フィルタリング"]
 
     style K fill:#d1fae5
     style L fill:#d1fae5
@@ -188,7 +188,7 @@ Repositoryメソッドからマッピング処理を切り離し、重複した�
 テーブル全体をメモリへ読み込まず、サーバー側でMessage取得範囲を制限します。
 
 ```text
-Clientがpage + pageSizeを送信
+クライアントがpage + pageSizeを送信
           ↓
 Controllerが入力境界を検証
           ↓
@@ -240,7 +240,7 @@ Controllerごとに同じ例外処理を書く必要がありません。
 
 ```mermaid
 sequenceDiagram
-    actor User
+    actor User as 利用者
     participant Vue as Vue.js
     participant Controller as HomeController
     participant Service as HomeService
@@ -248,16 +248,16 @@ sequenceDiagram
     participant Mapper as AutoMapper
     participant DB as SQL Server
 
-    User->>Vue: Add Message
+    User->>Vue: メッセージを追加
     Vue->>Controller: POST /Home/AddMessage
     Controller->>Service: AddMessage(request)
-    Service->>Service: Validate
+    Service->>Service: 入力を検証
     Service->>Repository: AddMessage(request)
     Repository->>Mapper: DTO → Entity
     Repository->>DB: INSERT
-    DB-->>Repository: Saved
-    Repository-->>Service: Complete
-    Service-->>Controller: Complete
+    DB-->>Repository: 保存完了
+    Repository-->>Service: 処理完了
+    Service-->>Controller: 処理完了
     Controller-->>Vue: HTTP 200
 ```
 
@@ -285,12 +285,12 @@ Serviceが`IHomeRepository`に依存するため、SQL Serverを必要とせずF
 ```mermaid
 flowchart LR
     Issue["GitHub Issue"]
-    --> Branch["Feature Branch"]
-    --> Code["Implementation"]
-    --> Build["Build"]
-    --> Test["Tests"]
-    --> PR["Pull Request"]
-    --> Merge["Merge"]
+    --> Branch["機能ブランチ"]
+    --> Code["実装"]
+    --> Build["ビルド"]
+    --> Test["テスト"]
+    --> PR["プルリクエスト"]
+    --> Merge["マージ"]
 ```
 
 各改善を独立してレビューできる大きさに保ち、アプリケーションの発展過程を履歴として残しています。
@@ -303,7 +303,7 @@ flowchart LR
 
 - [x] ASP.NET MVC構成
 - [x] Controller／Service分離
-- [x] Repository Pattern
+- [x] Repositoryパターン
 - [x] Repository抽象化
 - [x] 依存性注入
 
@@ -319,7 +319,7 @@ flowchart LR
 - [x] DTO分離
 - [x] AutoMapper
 - [x] Service層バリデーション
-- [x] Global Exception Handling
+- [x] 共通例外処理
 - [x] HTTP 400／404／500マッピング
 - [x] log4net
 
@@ -354,23 +354,23 @@ flowchart LR
 
 # 🗺️ ロードマップ
 
-### Phase 1 — クエリ機能
+### フェーズ 1 — クエリ機能
 
 検索・フィルタリング → ソート → 非同期DB操作
 
-### Phase 2 — バックエンド信頼性
+### フェーズ 2 — バックエンド信頼性
 
 トランザクション処理 → DBインデックス → APIレスポンス標準化 → 結合テスト拡充
 
-### Phase 3 — セキュリティ
+### フェーズ 3 — セキュリティ
 
 認証 → 認可
 
-### Phase 4 — インフラ
+### フェーズ 4 — インフラ
 
 Redisキャッシュ → Docker → GitHub Actions → デプロイ
 
-### Phase 5 — Modern .NET
+### フェーズ 5 — モダン.NET
 
 .NET Framework版を完成させた後、ここで得た知識を**ASP.NET Core**、最新のEntity Framework、PostgreSQLなどのモダンスタックへ展開します。
 
@@ -384,7 +384,7 @@ CRUDの先にある、保守可能なバックエンドエンジニアリング�
 - **データ：** ORM、LINQ、Migration、DTO／Entity分離、マッピング、ページングクエリ
 - **信頼性：** バリデーション、例外伝播、HTTPセマンティクス、集約ログ
 - **テスト容易性：** インターフェース依存、Service単体テスト、失敗・境界値シナリオ
-- **プロセス：** 段階的リファクタリング、Issue、Feature Branch、Pull Request、小さくレビュー可能な変更
+- **プロセス：** 段階的リファクタリング、Issue、機能ブランチ、プルリクエスト、小さくレビュー可能な変更
 
 ```text
 制約を見つける
